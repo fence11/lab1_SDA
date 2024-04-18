@@ -13,7 +13,7 @@ typedef struct
 void search_track(Track *track, int count)
 {
     char search_input[15];
-    printf("\nEnter track composer to search: "); // search by composer . . . etc
+    printf("\nEnter track composer to search: ");
     scanf("%s", search_input);
     getchar();
 
@@ -32,11 +32,13 @@ void search_track(Track *track, int count)
     }
 }
 
+
 int main()
 {
-    Track track[3];
+    const int track_number = 3;
+    Track track[track_number];
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < track_number; i++)
     {
         printf("Enter details for Track %d:\n", i + 1);
         printf("Track name: ");
@@ -51,7 +53,7 @@ int main()
         scanf("%d", &track[i].track_duration_seconds);
     }
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < track_number; i++)
     {
         printf("\nTRACK %d\n", i + 1);
         printf("Name: %s\n", track[i].track_name);

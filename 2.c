@@ -19,34 +19,29 @@ void print_tracks(Track *track, int count)
     for (int i = 0; i < count; i++)
     {
         printf("\nTrack %d:\n", i + 1);
-        printf("track name: %s\n", track[i].track_name);
-        printf("composer: %s\n", track[i].composer_name);
-        printf("media type: %s\n", track[i].track_media_type);
-        printf("album: %s\n", track[i].album);
-        printf("duration (seconds): %d\n", track[i].track_duration_seconds);
+        printf("Track name: %s\n", track[i].track_name);
+        printf("Composer: %s\n", track[i].composer_name);
+        printf("Media type: %s\n", track[i].track_media_type);
+        printf("Album: %s\n", track[i].album);
+        printf("Duration (seconds): %d\n", track[i].track_duration_seconds);
     }
 }
 
-void search_track_by_composer(Track *track, int count)
+void search_track_by_composer(Track *track, int count, char search_input[50])
 {
-    char search_input[15];
-    printf("\ninput composer to search: ");
-    scanf("%s", search_input);
-    getchar();
-
     for (int i = 0; i < count; i++)
     {
         if (strcmp(track[i].composer_name, search_input) == 0)
         {
-            printf("\nelement found at position: %d\n\n", i + 1);
-            printf("name: %s\n", track[i].track_name);
-            printf("composer: %s\n", track[i].composer_name);
+            printf("\nElement found at position: %d\n\n", i + 1);
+            printf("Name: %s\n", track[i].track_name);
+            printf("Composer: %s\n\n", track[i].composer_name);
             break;
         }
     }
 }
 
-int compare(const void *a, const void *b)
+int compare(const void *a, const void *b) // for qsort()
 {
     Track *trackA = (Track *)a;
     Track *trackB = (Track *)b;
@@ -55,15 +50,15 @@ int compare(const void *a, const void *b)
 
 void input_track_info(Track *new_track)
 {
-    printf("track name: ");
+    printf("Track name: ");
     scanf("%s", new_track->track_name);
-    printf("composer: ");
+    printf("Composer: ");
     scanf("%s", new_track->composer_name);
-    printf("media type: ");
+    printf("Media type: ");
     scanf("%s", new_track->track_media_type);
-    printf("album: ");
+    printf("Album: ");
     scanf("%s", new_track->album);
-    printf("duration (seconds): ");
+    printf("Duration (seconds): ");
     scanf("%d", &new_track->track_duration_seconds);
 }
 
@@ -93,28 +88,21 @@ void add_track_at_end(Track **tracks, int *count, Track new_track)
     (*count)++;
 }
 
-int main()
+void free_list(Track **track, int track_count)
 {
-    int track_count = 10;
-    Track *track = malloc(track_count * sizeof(Track));
-
-    Track predefined_tracks[10] = {
-        {"track1", "comp_1", "WAV", "album_1", 465, NULL},
-        {"track2", "comp_2", "MP3", "album_2", 231, NULL},
-        {"track3", "comp_1", "WAV", "album_2", 661, NULL},
-        {"track4", "comp_3", "WAV", "album_3", 211, NULL},
-        {"track5", "comp_2", "MP3", "album_2", 289, NULL},
-        {"track6", "comp_2", "MP3", "album_3", 129, NULL},
-        {"track7", "comp_1", "WAV", "album_3", 372, NULL},
-        {"track8", "comp_1", "WAV", "album_2", 273, NULL},
-        {"track9", "comp_3", "WAV", "album_1", 249, NULL},
-        {"track10", "comp_2", "MP3", "album_2", 332, NULL}};
-
     for (int i = 0; i < track_count; i++)
     {
-        track[i] = predefined_tracks[i];
+        free((*track)[i].next);
     }
+    free(*track);
+    *track = NULL;
+}
 
+int main()
+{
+    int track_count = 0;
+    Track *track = malloc(track_count * sizeof(Track));
+    
     int n;
     do
     {
@@ -124,7 +112,8 @@ int main()
         printf(" 3| Sort tracks by duration\n");
         printf(" 4| Add track at beginning\n");
         printf(" 5| Add track at end\n");
-        printf(" 6| Exit\n");
+        printf(" 6| Free list\n");
+        printf(" 0| Exit\n");
         printf("\nYour selection:\n");
         scanf(" %d", &n);
         switch (n)
@@ -133,8 +122,13 @@ int main()
             print_tracks(track, track_count);
             break;
         case 2:
-            search_track_by_composer(track, track_count);
+        {
+            char search_input[50];
+            printf("\nInput composer to search: ");
+            scanf("%s", search_input);
+            search_track_by_composer(track, track_count, search_input);
             break;
+        }
         case 3:
             qsort(track, track_count, sizeof(Track), compare);
 
@@ -147,21 +141,27 @@ int main()
         case 4:
         {
             Track new_track;
-            printf("input track at the beginning:\n");
+            printf("Input track at the beginning:\n");
             input_track_info(&new_track);
             add_track_at_beginning(&track, &track_count, new_track);
-            printf("Success\n");
+            printf("\n");
             break;
         }
         case 5:
         {
             Track new_track;
-            printf("input track at the end:\n");
+            printf("Input track at the end:\n");
             input_track_info(&new_track);
             add_track_at_end(&track, &track_count, new_track);
-            printf("Success\n");
+            printf("\n");
             break;
         }
+
+        case 6:
+            free_list(&track, track_count);
+            track = NULL;
+            track_count = 0;
+            break;
         case 0:
             printf("exit . . .");
             exit(1);
@@ -171,8 +171,6 @@ int main()
             break;
         }
     } while (n != 0);
-
-    free(track);
 
     return 0;
 }
